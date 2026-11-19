@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Solicitar permiso{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Solicitar permiso o vacaciones</h1><p>La solicitud será revisada por su jefe de área o por RRHH.</p></div></div>
+<div class="grid grid-sidebar">
+  <form method="post" novalidate class="card">{% csrf_token %}
+    <div class="card__body">
+      {% include '_errores_form.html' %}
+      <div class="form-grid">
+        {% include '_campo.html' with campo=form.tipo full=True %}
+        {% include '_campo.html' with campo=form.fecha_inicio %}
+        {% include '_campo.html' with campo=form.fecha_fin %}
+        {% include '_campo.html' with campo=form.motivo full=True %}
+        {% include '_campo.html' with campo=form.adjunto_descripcion full=True %}
+      </div>
+    </div>
+    <div class="card__footer form-actions" style="margin:0"><a class="btn btn--secondary" href="{% url 'asistencia:mis_permisos' %}">Cancelar</a><button class="btn" type="submit">Enviar solicitud</button></div>
+  </form>
+  <aside class="stack">
+    <div class="card stat"><div class="stat__label">Vacaciones disponibles</div><div class="stat__value">{{ empleado.dias_vacaciones_disponibles }}</div><div class="stat__hint">Comprometidos este año (aprobados + pendientes): {{ comprometidos }} días</div></div>
+    <div class="card"><div class="card__header"><h2>Reglas</h2></div>
+      <ul class="list"><li>La fecha de fin debe ser igual o posterior a la de inicio.</li><li>No puede tener permisos superpuestos.</li><li>Motivo de al menos 30 caracteres.</li><li>Las vacaciones no pueden superar los días disponibles.</li></ul>
+    </div>
+  </aside>
+</div>
+{% endblock %}

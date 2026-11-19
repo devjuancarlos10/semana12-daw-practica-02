@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Historial clínico{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Historial clínico</h1><p>{{ paciente.nombre_completo }} · DNI {{ paciente.dni }}</p></div>
+  <span class="badge badge--info">Acceso registrado en auditoría</span>
+</div>
+<div class="grid grid-3" style="margin-bottom:16px">
+  <div class="card stat"><div class="stat__label">Edad</div><div class="stat__value">{{ paciente.edad }}</div><div class="stat__hint">Nacimiento: {{ paciente.fecha_nacimiento|date:"d/m/Y" }}</div></div>
+  <div class="card stat"><div class="stat__label">Tipo / código</div><div style="font-weight:700;margin-top:6px">{{ paciente.get_tipo_display }}</div><div class="stat__hint mono">{{ paciente.codigo_institucional }}</div></div>
+  <div class="card stat {% if paciente.alergias %}stat--danger{% endif %}"><div class="stat__label">Alergias conocidas</div><div style="margin-top:6px;font-weight:600{% if paciente.alergias %};color:var(--danger){% endif %}">{{ paciente.alergias|default:"Ninguna" }}</div></div>
+</div>
+<div class="grid grid-sidebar">
+  <section class="card">
+    <div class="card__header"><h2>Consultas ({{ consultas|length }})</h2></div>
+    {% if consultas %}
+    <ul class="list">
+      {% for c in consultas %}
+      <li style="display:block">
+        <div class="row"><strong>{{ c.cita.fecha|date:"d/m/Y" }}</strong><span class="muted">· {{ c.medico }} · {{ c.medico.especialidad }}</span><span class="spacer"></span><a class="btn btn--sm btn--ghost" href="{% url 'clinica:consulta_detalle' c.pk %}">Abrir</a></div>
+        <div><small class="muted">Diagnóstico:</small> {{ c.diagnostico|truncatechars:140 }}</div>
+        {% if c.notas.all %}<small class="muted">{{ c.notas.all|length }} nota(s)</small>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}<div class="empty"><strong>Sin consultas registradas</strong></div>{% endif %}
+  </section>
+  <aside class="card">
+    <div class="card__header"><h2>Últimas citas</h2></div>
+    <ul class="list">{% for c in citas %}<li><span>{{ c.fecha|date:"d/m/Y" }} {{ c.hora|time:"H:i" }}<br><small>{{ c.medico.especialidad }}</small></span><span class="badge badge--{{ c.estado }}">{{ c.get_estado_display }}</span></li>{% empty %}<li class="muted">Sin citas.</li>{% endfor %}</ul>
+  </aside>
+</div>
+{% endblock %}

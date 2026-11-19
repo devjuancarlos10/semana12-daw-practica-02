@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Marcación{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Hola, {{ user.first_name|default:user.username }}</h1><p>{{ hoy|date:"l j \d\e F \d\e Y"|capfirst }}{% if empleado %} · {{ empleado.cargo }} · {{ empleado.area }}{% endif %}</p></div>
+  {% if empleado %}<a class="btn btn--secondary" href="{% url 'asistencia:permiso_nuevo' %}">Solicitar permiso</a>{% endif %}
+</div>
+
+{% if empleado %}
+<div class="grid grid-sidebar">
+  <section class="card">
+    <div class="card__header"><h2>Marcación rápida</h2><span class="muted">Horario: {{ empleado.hora_entrada|time:"H:i" }} – {{ empleado.hora_salida|time:"H:i" }}</span></div>
+    <div class="card__body stack">
+      <div>
+        <div class="clock">{% now "H:i" %}</div>
+        <p class="muted">La hora se registra automáticamente al presionar el botón.</p>
+      </div>
+      <form method="post" action="{% url 'asistencia:marcar' %}" class="stack">
+        {% csrf_token %}
+        <input class="input" name="observacion" maxlength="255" placeholder="Observación (opcional)">
+        <div class="marcacion">
+          <button class="btn btn--success" name="tipo" value="entrada" type="submit"{% if abierta %} disabled{% endif %}>Marcar entrada</button>
+          <button class="btn btn--danger" name="tipo" value="salida" type="submit"{% if not abierta %} disabled{% endif %}>Marcar salida</button>
+        </div>
+      </form>
+      {% if registros_hoy %}
+      <ul class="list" style="border:1px solid var(--border);border-radius:8px">
+        {% for r in registros_hoy %}
+        <li><span>Entrada <strong>{{ r.hora_entrada|time:"H:i" }}</strong>{% if r.hora_salida %} · Salida <strong>{{ r.hora_salida|time:"H:i" }}</strong>{% endif %}</span>
+          {% if r.hora_salida %}<span class="badge badge--success">{{ r.horas_trabajadas }} h{% if r.horas_extra %} · +{{ r.horas_extra }} extra{% endif %}</span>{% else %}<span class="badge badge--warning">En curso</span>{% endif %}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </section>
+  <aside class="stack">
+    <div class="card stat"><div class="stat__label">Vacaciones disponibles</div><div class="stat__value">{{ empleado.dias_vacaciones_disponibles }}</div><div class="stat__hint">de 30 días anuales · {{ mis_pendientes }} solicitud(es) pendiente(s)</div></div>
+    <div class="card stat"><div class="stat__label">Este mes</div><div class="stat__value">{{ mes.horas|default:0 }} h</div><div class="stat__hint">{{ mes.dias }} día(s) · {{ mes.extra|default:0 }} h extra</div></div>
+    <div class="card stat"><div class="stat__label">Antigüedad</div><div style="font-weight:700;margin-top:6px">{{ empleado.antiguedad_texto }}</div><div class="stat__hint">Desde {{ empleado.fecha_ingreso|date:"d/m/Y" }}</div></div>
+  </aside>
+</div>
+{% endif %}
+
+{% if equipo %}
+<h2 style="margin-top:24px">{% if user.area_a_cargo %}Mi equipo · {{ user.area_a_cargo }}{% else %}Resumen de hoy{% endif %}</h2>
+<div class="grid grid-4">
+  <div class="card stat"><div class="stat__label">Empleados activos</div><div class="stat__value">{{ equipo.total }}</div></div>
+  <div class="card stat stat--success"><div class="stat__label">Con marcación hoy</div><div class="stat__value">{{ equipo.presentes }}</div></div>
+  <div class="card stat stat--warning"><div class="stat__label">Sin marcación</div><div class="stat__value">{{ equipo.ausentes }}</div></div>
+  <div class="card stat"><div class="stat__label">De permiso hoy</div><div class="stat__value">{{ equipo.en_permiso }}</div></div>
+</div>
+{% endif %}
+
+{% if por_aprobar is not None %}
+<section class="card" style="margin-top:16px">
+  <div class="card__header"><h2>Permisos por aprobar</h2><a href="{% url 'asistencia:bandeja_permisos' %}">Ver bandeja →</a></div>
+  {% if por_aprobar %}
+  <ul class="list">{% for p in por_aprobar %}<li><span><a href="{% url 'asistencia:permiso_detalle' p.pk %}">{{ p.empleado.nombre_completo }}</a> · {{ p.get_tipo_display }}<br><small>{{ p.fecha_inicio|date:"d/m" }} – {{ p.fecha_fin|date:"d/m/Y" }} · {{ p.dias }} día(s) · {{ p.empleado.area }}</small></span><span class="badge badge--pendiente">Pendiente</span></li>{% endfor %}</ul>
+  {% else %}<div class="empty">No hay solicitudes pendientes.</div>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Catálogo{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Catálogo de equipos</h1><p>{{ total }} equipo{{ total|pluralize }} encontrado{{ total|pluralize }}{% if not user.is_authenticated %} · Inicie sesión para solicitar un préstamo{% endif %}.</p></div>
+  {% if perms.prestamos.add_equipo %}<a class="btn" href="{% url 'prestamos:equipo_crear' %}">Registrar equipo</a>{% endif %}
+</div>
+
+<form method="get" class="card card__body filters" style="margin-bottom:16px">
+  {% include '_campo.html' with campo=form.q %}
+  {% include '_campo.html' with campo=form.laboratorio %}
+  {% include '_campo.html' with campo=form.estado %}
+  <div class="row"><button class="btn" type="submit">Filtrar</button><a class="btn btn--secondary" href="{% url 'prestamos:catalogo' %}">Limpiar</a></div>
+</form>
+
+<div class="card">
+  {% if pagina.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Código</th><th>Equipo</th><th>Categoría</th><th>Laboratorio</th><th>Estado</th><th class="num">Disponibles</th><th></th></tr></thead>
+    <tbody>
+    {% for e in pagina %}
+      <tr>
+        <td class="mono">{{ e.codigo_patrimonial }}</td>
+        <td><a href="{% url 'prestamos:equipo_detalle' e.pk %}"><strong>{{ e.nombre }}</strong></a><br><small>{{ e.marca }} {{ e.modelo }}</small></td>
+        <td>{{ e.get_categoria_display }}</td>
+        <td>{{ e.laboratorio.nombre }}</td>
+        <td><span class="badge badge--{{ e.estado }}">{{ e.get_estado_display }}</span></td>
+        <td class="num">{{ e.disponibles }} / {{ e.cantidad_total }}</td>
+        <td class="text-right">{% if perms.prestamos.add_prestamo and e.es_operativo and e.disponibles %}<a class="btn btn--sm btn--secondary" href="{% url 'prestamos:prestamo_nuevo' %}?equipo={{ e.pk }}">Solicitar</a>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% include '_paginacion.html' %}
+  {% else %}
+    <div class="empty"><strong>No se encontraron equipos</strong>Pruebe con otros criterios de búsqueda.</div>
+  {% endif %}
+</div>
+{% endblock %}

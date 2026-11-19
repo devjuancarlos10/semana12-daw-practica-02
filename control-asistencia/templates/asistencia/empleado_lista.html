@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Empleados{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Empleados</h1><p>{% if ver_salarios %}Vista completa (RRHH).{% else %}Los salarios son confidenciales y solo los ve RRHH.{% endif %}</p></div>
+  {% if perms.asistencia.add_empleado %}<a class="btn" href="{% url 'asistencia:empleado_nuevo' %}">Registrar empleado</a>{% endif %}
+</div>
+<form method="get" class="filters" style="margin-bottom:16px">
+  <div class="field"><label for="q">Buscar</label><input class="input" id="q" name="q" value="{{ q }}" placeholder="DNI, nombres o apellidos"></div>
+  <button class="btn btn--secondary" type="submit">Buscar</button>
+</form>
+<div class="card">
+  {% if pagina.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>DNI</th><th>Empleado</th><th>Cargo</th><th>Área</th><th>Contrato</th><th>Antigüedad</th><th class="num">Vacaciones</th>{% if ver_salarios %}<th class="num">Salario</th>{% endif %}<th>Estado</th><th></th></tr></thead>
+    <tbody>
+    {% for e in pagina %}
+      <tr>
+        <td class="mono">{{ e.dni }}</td>
+        <td><strong>{{ e.apellidos }}</strong>, {{ e.nombres }}<br><small>{{ e.email_corporativo }}</small></td>
+        <td>{{ e.cargo }}</td>
+        <td>{{ e.area }}</td>
+        <td>{{ e.get_tipo_contrato_display }}</td>
+        <td>{{ e.antiguedad_texto }}</td>
+        <td class="num">{{ e.dias_vacaciones_disponibles }} d</td>
+        {% if ver_salarios %}<td class="num">S/ {{ e.salario }}</td>{% endif %}
+        <td>{% if e.activo %}<span class="badge badge--success">Activo</span>{% else %}<span class="badge badge--danger">Desactivado</span>{% endif %}</td>
+        <td class="text-right">{% if perms.asistencia.change_empleado %}<a class="btn btn--sm btn--ghost" href="{% url 'asistencia:empleado_editar' e.pk %}">Editar</a>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% include '_paginacion.html' %}
+  {% else %}<div class="empty">No se encontraron empleados.</div>{% endif %}
+</div>
+{% endblock %}

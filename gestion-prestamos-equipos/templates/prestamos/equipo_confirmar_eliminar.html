@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Eliminar equipo{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px">
+  <div class="card__header"><h2>Eliminar equipo</h2></div>
+  <div class="card__body">
+    <p>¿Confirma la eliminación definitiva de <strong>{{ equipo }}</strong>?</p>
+    <div class="alert alert--warning">Esta acción no se puede deshacer y quedará registrada en la auditoría. Si el equipo tiene historial de préstamos, cambie su estado a «Dado de baja».</div>
+    <form method="post" class="form-actions">{% csrf_token %}
+      <a class="btn btn--secondary" href="{% url 'prestamos:equipo_detalle' equipo.pk %}">Cancelar</a>
+      <button class="btn btn--danger" type="submit">Eliminar definitivamente</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

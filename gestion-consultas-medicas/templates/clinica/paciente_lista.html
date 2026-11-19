@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Pacientes{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Pacientes</h1><p>Búsqueda por DNI o nombre.</p></div>
+  {% if perms.clinica.add_paciente %}<a class="btn" href="{% url 'clinica:paciente_nuevo' %}">Registrar paciente</a>{% endif %}
+</div>
+<form method="get" class="filters" style="margin-bottom:16px">
+  {% include '_campo.html' with campo=form.q %}
+  <button class="btn btn--secondary" type="submit">Buscar</button>
+</form>
+<div class="card">
+  {% if pagina.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>DNI</th><th>Paciente</th><th>Tipo</th><th class="num">Edad</th><th>Código</th><th class="num">Citas</th><th>Última consulta</th><th></th></tr></thead>
+    <tbody>
+    {% for p in pagina %}
+      <tr>
+        <td class="mono">{{ p.dni }}</td>
+        <td><strong>{{ p.apellidos }}</strong>, {{ p.nombres }}<br><small>{{ p.email }}</small></td>
+        <td>{{ p.get_tipo_display }}</td>
+        <td class="num">{{ p.edad }}</td>
+        <td class="mono">{{ p.codigo_institucional }}</td>
+        <td class="num">{{ p.total_citas }}</td>
+        <td>{{ p.ultima_consulta|date:"d/m/Y"|default:"—" }}</td>
+        <td class="text-right row" style="justify-content:flex-end">
+          {% if user.es_medico %}<a class="btn btn--sm btn--secondary" href="{% url 'clinica:historial_paciente' p.pk %}">Historial</a>{% endif %}
+          {% if perms.clinica.change_paciente %}<a class="btn btn--sm btn--ghost" href="{% url 'clinica:paciente_editar' p.pk %}">Editar</a>{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% include '_paginacion.html' %}
+  {% else %}<div class="empty"><strong>No se encontraron pacientes</strong></div>{% endif %}
+</div>
+{% endblock %}

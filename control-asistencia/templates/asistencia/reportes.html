@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Reportes{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Reporte de asistencia</h1><p>Alcance: {{ alcance }} · {{ desde|date:"d/m/Y" }} – {{ hasta|date:"d/m/Y" }}</p></div>
+  <a class="btn btn--secondary" href="{% url 'asistencia:exportar_reporte' %}?{{ request.GET.urlencode }}">Exportar para planilla (.txt)</a>
+</div>
+<form method="get" class="card card__body filters" style="margin-bottom:16px">
+  {% include '_campo.html' with campo=form.desde %}
+  {% include '_campo.html' with campo=form.hasta %}
+  {% if form.area %}{% include '_campo.html' with campo=form.area %}{% endif %}
+  <button class="btn" type="submit">Generar</button>
+</form>
+<div class="grid grid-3" style="margin-bottom:16px">
+  <div class="card stat"><div class="stat__label">Empleados</div><div class="stat__value">{{ filas|length }}</div></div>
+  <div class="card stat"><div class="stat__label">Horas trabajadas</div><div class="stat__value">{{ totales.horas|default:0 }}</div></div>
+  <div class="card stat stat--warning"><div class="stat__label">Horas extra</div><div class="stat__value">{{ totales.extra|default:0 }}</div></div>
+</div>
+<div class="card">
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Área</th><th>Empleado</th><th class="num">Días</th><th class="num">Horas trabajadas</th><th class="num">Horas extra</th></tr></thead>
+    <tbody>
+    {% for f in filas %}
+      <tr><td>{{ f.empleado__area__nombre }}</td><td>{{ f.empleado__apellidos }}, {{ f.empleado__nombres }}</td><td class="num">{{ f.dias }}</td><td class="num">{{ f.total_horas|default:0 }}</td><td class="num">{% if f.total_extra %}<strong>{{ f.total_extra }}</strong>{% else %}0{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="5" class="empty">Sin registros en el periodo.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

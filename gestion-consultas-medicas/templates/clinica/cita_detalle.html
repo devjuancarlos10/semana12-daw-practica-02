@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Cita {{ cita.fecha|date:"d/m/Y" }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><p><a href="{% url 'clinica:cita_lista' %}">← Agenda</a></p><h1>Cita del {{ cita.fecha|date:"d/m/Y" }} · {{ cita.hora|time:"H:i" }} <span class="badge badge--{{ cita.estado }}">{{ cita.get_estado_display }}</span></h1></div>
+  <div class="row">
+    {% if consulta and puede_ver_historial %}<a class="btn" href="{% url 'clinica:consulta_detalle' consulta.pk %}">Ver consulta</a>{% endif %}
+    {% if perms.clinica.add_consulta and cita.medico.usuario_id == user.pk and cita.estado == 'programada' and not consulta %}<a class="btn" href="{% url 'clinica:consulta_registrar' cita.pk %}">Registrar consulta</a>{% endif %}
+    {% if puede_ver_historial %}<a class="btn btn--secondary" href="{% url 'clinica:historial_paciente' cita.paciente.pk %}">Historial del paciente</a>{% endif %}
+  </div>
+</div>
+<div class="grid grid-sidebar">
+  <section class="card">
+    <div class="card__header"><h2>Detalle</h2></div>
+    <div class="card__body"><dl class="dl">
+      <dt>Paciente</dt><dd>{{ cita.paciente.nombre_completo }} · DNI {{ cita.paciente.dni }}</dd>
+      <dt>Médico</dt><dd>{{ cita.medico }} · CMP {{ cita.medico.cmp }}</dd>
+      <dt>Especialidad</dt><dd>{{ cita.medico.especialidad }}</dd>
+      <dt>Consultorio</dt><dd>{{ cita.medico.consultorio }}</dd>
+      <dt>Horario</dt><dd>{{ cita.fecha|date:"l d/m/Y"|capfirst }}, {{ cita.hora|time:"H:i" }} – {{ cita.hora_fin|time:"H:i" }}</dd>
+      <dt>Motivo</dt><dd>{{ cita.motivo|linebreaksbr }}</dd>
+      {% if cita.estado == 'cancelada' %}<dt>Cancelada por</dt><dd>{{ cita.cancelada_por }} · {{ cita.fecha_cancelacion|date:"d/m/Y H:i" }}<br><small>{{ cita.motivo_cancelacion }}</small></dd>{% endif %}
+      <dt>Registrada por</dt><dd>{{ cita.creada_por|default:"—" }} · {{ cita.creado|date:"d/m/Y H:i" }}</dd>
+    </dl></div>
+  </section>
+  {% if puede_cancelar %}
+  <aside class="card">
+    <div class="card__header"><h2>Cancelar cita</h2></div>
+    <form method="post" action="{% url 'clinica:cita_cancelar' cita.pk %}" class="card__body stack">{% csrf_token %}
+      {% include '_campo.html' with campo=form_cancelar.motivo %}
+      <button class="btn btn--danger btn--block" type="submit">Cancelar cita</button>
+    </form>
+  </aside>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+<div class="table-wrap"><table class="table">
+  <thead><tr><th>Fecha</th><th>Hora</th>{% if not user.es_paciente %}<th>Paciente</th>{% endif %}{% if not user.es_medico %}<th>Médico</th>{% endif %}<th>Especialidad</th><th>Estado</th><th></th></tr></thead>
+  <tbody>
+  {% for c in citas %}
+    <tr>
+      <td>{{ c.fecha|date:"D d/m/Y" }}</td>
+      <td class="mono">{{ c.hora|time:"H:i" }}–{{ c.hora_fin|time:"H:i" }}</td>
+      {% if not user.es_paciente %}<td>{{ c.paciente.nombre_completo }}<br><small class="mono">{{ c.paciente.dni }}</small></td>{% endif %}
+      {% if not user.es_medico %}<td>{{ c.medico }}<br><small>Consultorio {{ c.medico.consultorio }}</small></td>{% endif %}
+      <td>{{ c.medico.especialidad }}</td>
+      <td><span class="badge badge--{{ c.estado }}">{{ c.get_estado_display }}</span></td>
+      <td class="text-right"><a class="btn btn--sm btn--ghost" href="{% url 'clinica:cita_detalle' c.pk %}">Ver</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table></div>

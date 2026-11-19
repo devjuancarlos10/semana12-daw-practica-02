@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Auditoría{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Auditoría</h1><p>Accesos a historiales clínicos y trazabilidad de cambios (quién, cuándo y qué).</p></div></div>
+<nav class="tabs">
+  <a href="?ver=accesos" class="{% if pestana == 'accesos' %}active{% endif %}">Accesos a historiales</a>
+  <a href="?ver=cambios" class="{% if pestana == 'cambios' %}active{% endif %}">Registro de cambios</a>
+</nav>
+<div class="card">
+  {% if pagina.object_list %}
+  <div class="table-wrap"><table class="table">
+    {% if pestana == 'accesos' %}
+    <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Rol</th><th>Recurso</th><th>Paciente</th><th>Resultado</th><th>IP</th></tr></thead>
+    <tbody>{% for a in pagina %}
+      <tr><td class="mono">{{ a.fecha|date:"d/m/Y H:i:s" }}</td><td>{{ a.username }}</td><td>{{ a.rol|default:"—" }}</td><td>{{ a.recurso }}</td><td>{% if a.paciente %}{{ a.paciente.nombre_completo }} <small class="mono">{{ a.paciente.dni }}</small>{% else %}—{% endif %}</td>
+      <td><span class="badge {% if a.resultado == 'permitido' %}badge--success{% else %}badge--danger{% endif %}">{{ a.get_resultado_display }}</span></td><td class="mono">{{ a.ip|default:"—" }}</td></tr>
+    {% endfor %}</tbody>
+    {% else %}
+    <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Registro</th><th>Cambios</th><th>IP</th></tr></thead>
+    <tbody>{% for r in pagina %}
+      <tr><td class="mono">{{ r.fecha|date:"d/m/Y H:i:s" }}</td><td>{{ r.username|default:"sistema" }}</td><td><span class="badge badge--info">{{ r.get_accion_display }}</span></td><td>{{ r.modelo }} <small>{{ r.objeto }}</small></td>
+      <td><small class="mono">{% for linea in r.cambios_legibles %}{{ linea }}<br>{% empty %}—{% endfor %}</small></td>
+      <td class="mono">{{ r.ip|default:"—" }}</td></tr>
+    {% endfor %}</tbody>
+    {% endif %}
+  </table></div>
+  {% include '_paginacion.html' %}
+  {% else %}<div class="empty">No hay registros.</div>{% endif %}
+</div>
+{% endblock %}

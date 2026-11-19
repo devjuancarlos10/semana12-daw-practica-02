@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Corregir asistencia{% endblock %}
+{% block content %}
+<div class="page-header"><div><p><a href="{% url 'asistencia:asistencia_diaria' %}?fecha={{ registro.fecha|date:'Y-m-d' }}">← Asistencia diaria</a></p><h1>Corregir asistencia</h1><p>{{ registro.empleado.nombre_completo }} · {{ registro.fecha|date:"d/m/Y" }}</p></div></div>
+<div class="grid grid-sidebar">
+  <form method="post" novalidate class="card">{% csrf_token %}
+    <div class="card__body">
+      {% include '_errores_form.html' %}
+      <div class="form-grid">
+        {% include '_campo.html' with campo=form.hora_entrada %}
+        {% include '_campo.html' with campo=form.hora_salida %}
+        {% include '_campo.html' with campo=form.motivo full=True %}
+        {% include '_campo.html' with campo=form.justificacion full=True %}
+      </div>
+    </div>
+    <div class="card__footer form-actions" style="margin:0"><button class="btn" type="submit">Aplicar corrección</button></div>
+  </form>
+  <aside class="card">
+    <div class="card__header"><h2>Correcciones previas</h2></div>
+    {% if historial %}<ul class="list">{% for c in historial %}<li style="display:block"><small class="muted">{{ c.fecha|date:"d/m/Y H:i" }} · {{ c.corregido_por }} · {{ c.get_motivo_display }}</small><div class="mono"><small>{{ c.entrada_anterior|time:"H:i" }}–{{ c.salida_anterior|time:"H:i"|default:"?" }} → {{ c.entrada_nueva|time:"H:i" }}–{{ c.salida_nueva|time:"H:i"|default:"?" }}</small></div><small>{{ c.justificacion }}</small></li>{% endfor %}</ul>
+    {% else %}<div class="empty">Sin correcciones.</div>{% endif %}
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+{% block extrastyle %}{{ block.super }}
+<style>
+  .agenda-nav { display:flex; gap:10px; align-items:center; margin:12px 0 20px; flex-wrap:wrap; }
+  .agenda-medico { margin-bottom:24px; }
+  .agenda-medico h2 { margin-bottom:6px; }
+  .estado { padding:2px 10px; border-radius:999px; font-weight:600; font-size:11px; }
+  .estado-programada { background:#fef9c3; color:#a16207; }
+  .estado-completada { background:#dcfce7; color:#15803d; }
+  .estado-cancelada, .estado-no_asistio { background:#fee2e2; color:#b91c1c; }
+</style>
+{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a> ›
+  <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a> ›
+  <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a> › Agenda diaria
+</div>
+{% endblock %}
+{% block content %}
+<div id="content-main">
+  <form method="get" class="agenda-nav">
+    <a class="button" href="?fecha={{ anterior|date:'Y-m-d' }}">← Día anterior</a>
+    <input type="date" name="fecha" value="{{ fecha|date:'Y-m-d' }}">
+    <input type="submit" value="Ver">
+    <a class="button" href="?fecha={{ siguiente|date:'Y-m-d' }}">Día siguiente →</a>
+    <strong>{{ total }} cita{{ total|pluralize }}</strong>
+  </form>
+
+  {% for medico, citas in agenda.items %}
+  <div class="agenda-medico module">
+    <h2>{{ medico }} · {{ medico.especialidad }} · Consultorio {{ medico.consultorio }}</h2>
+    <table style="width:100%">
+      <thead><tr><th>Hora</th><th>Paciente</th><th>DNI</th><th>Motivo</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+      {% for c in citas %}
+        <tr>
+          <td><strong>{{ c.hora|time:"H:i" }}</strong> – {{ c.hora_fin|time:"H:i" }}</td>
+          <td>{{ c.paciente.nombre_completo }}</td>
+          <td>{{ c.paciente.dni }}</td>
+          <td>{{ c.motivo|truncatechars:60 }}</td>
+          <td><span class="estado estado-{{ c.estado }}">{{ c.get_estado_display }}</span></td>
+          <td><a href="{% url 'admin:clinica_cita_change' c.pk %}">Ver</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% empty %}
+    <p>No hay citas registradas para esta fecha.</p>
+  {% endfor %}
+</div>
+{% endblock %}

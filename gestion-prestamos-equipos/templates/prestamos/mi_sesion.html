@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Mi sesión{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Mi sesión</h1><p>Datos de su cuenta y de la sesión activa.</p></div></div>
+<div class="grid grid-2">
+  <section class="card">
+    <div class="card__header"><h2>Cuenta</h2></div>
+    <div class="card__body"><dl class="dl">
+      <dt>Usuario</dt><dd>{{ user.username }}</dd>
+      <dt>Nombre</dt><dd>{{ user.get_full_name }}</dd>
+      <dt>Rol</dt><dd>{{ user.get_rol_display }}</dd>
+      <dt>Grupos</dt><dd>{% for g in grupos %}<span class="badge badge--info">{{ g.name }}</span> {% empty %}—{% endfor %}</dd>
+      <dt>Código</dt><dd>{{ user.codigo_institucional|default:"—" }}</dd>
+      <dt>Último acceso</dt><dd>{{ user.last_login|date:"d/m/Y H:i" }}</dd>
+    </dl></div>
+  </section>
+  <section class="card">
+    <div class="card__header"><h2>Sesión</h2></div>
+    <div class="card__body"><dl class="dl">
+      <dt>Cierre por inactividad</dt><dd>{{ timeout_min }} minutos</dd>
+      <dt>Expira (si no hay actividad)</dt><dd>{{ expira|date:"d/m/Y H:i:s" }}</dd>
+      <dt>Cookie</dt><dd class="mono">{{ cookie.nombre }}</dd>
+      <dt>HttpOnly</dt><dd>{% if cookie.httponly %}<span class="badge badge--success">Sí</span>{% else %}No{% endif %}</dd>
+      <dt>Secure</dt><dd>{% if cookie.secure %}<span class="badge badge--success">Sí</span>{% else %}<span class="badge badge--warning">No (desarrollo)</span>{% endif %}</dd>
+      <dt>SameSite</dt><dd>{{ cookie.samesite }}</dd>
+    </dl></div>
+  </section>
+</div>
+{% endblock %}

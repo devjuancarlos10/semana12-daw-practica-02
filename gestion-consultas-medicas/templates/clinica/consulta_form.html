@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Registrar consulta{% endblock %}
+{% block content %}
+<div class="page-header"><div><p><a href="{% url 'clinica:cita_detalle' cita.pk %}">← Cita</a></p><h1>Registrar consulta</h1><p>{{ cita.paciente.nombre_completo }} · {{ cita.paciente.edad }} años · {{ cita.fecha|date:"d/m/Y" }} {{ cita.hora|time:"H:i" }}</p></div></div>
+{% if cita.paciente.alergias %}<div class="alert alert--warning"><strong>Alergias:</strong>&nbsp;{{ cita.paciente.alergias }}</div>{% endif %}
+<div class="alert alert--info">Una vez guardada, la consulta no podrá modificarse; solo se podrán agregar notas.</div>
+<form method="post" novalidate class="card" style="max-width:900px">
+  {% csrf_token %}
+  <div class="card__body">
+    {% include '_errores_form.html' %}
+    <div class="form-grid">
+      {% include '_campo.html' with campo=form.diagnostico full=True %}
+      {% include '_campo.html' with campo=form.tratamiento full=True %}
+      {% include '_campo.html' with campo=form.medicamentos full=True %}
+      {% include '_campo.html' with campo=form.proxima_cita_control %}
+      {% include '_campo.html' with campo=form.adjuntos %}
+    </div>
+  </div>
+  <div class="card__footer form-actions" style="margin:0">
+    <a class="btn btn--secondary" href="{% url 'clinica:cita_detalle' cita.pk %}">Cancelar</a>
+    <button class="btn" type="submit">Guardar consulta</button>
+  </div>
+</form>
+{% endblock %}

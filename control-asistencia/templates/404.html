@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}No encontrado{% endblock %}
+{% block content %}
+<div class="card" style="max-width:560px;margin:40px auto">
+  <div class="card__body empty">
+    <div style="font-size:42px;font-weight:800;color:var(--muted)">404</div>
+    <strong>La página solicitada no existe</strong>
+    <p>Verifique la dirección o regrese al inicio.</p>
+    <a class="btn btn--secondary" href="{% url 'asistencia:inicio' %}">Volver al inicio</a>
+  </div>
+</div>
+{% endblock %}

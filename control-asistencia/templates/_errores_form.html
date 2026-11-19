@@ -1,0 +1,5 @@
+{% if form.non_field_errors %}
+  <div class="alert alert--danger" role="alert"><span class="alert__icon">!</span><div>{% for e in form.non_field_errors %}{{ e }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div></div>
+{% elif form.errors %}
+  <div class="alert alert--danger" role="alert"><span class="alert__icon">!</span><div>Revise los campos marcados en rojo.</div></div>
+{% endif %}

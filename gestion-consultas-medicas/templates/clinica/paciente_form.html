@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ titulo }}</h1><p>Los campos marcados con * son obligatorios.</p></div></div>
+<form method="post" novalidate class="card" style="max-width:860px">
+  {% csrf_token %}
+  <div class="card__body">
+    {% include '_errores_form.html' %}
+    <div class="form-grid">
+      {% include '_campo.html' with campo=form.dni %}
+      {% include '_campo.html' with campo=form.tipo %}
+      {% include '_campo.html' with campo=form.nombres %}
+      {% include '_campo.html' with campo=form.apellidos %}
+      {% include '_campo.html' with campo=form.fecha_nacimiento %}
+      {% include '_campo.html' with campo=form.codigo_institucional %}
+      {% include '_campo.html' with campo=form.email %}
+      {% include '_campo.html' with campo=form.telefono %}
+      {% include '_campo.html' with campo=form.alergias full=True %}
+    </div>
+  </div>
+  <div class="card__footer form-actions" style="margin:0">
+    <a class="btn btn--secondary" href="{% url 'clinica:paciente_lista' %}">Cancelar</a>
+    <button class="btn" type="submit">Guardar</button>
+  </div>
+</form>
+{% endblock %}

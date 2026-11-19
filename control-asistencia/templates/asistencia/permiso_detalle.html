@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Permiso{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>{{ permiso.get_tipo_display }} · {{ permiso.empleado.nombre_completo }} <span class="badge badge--{{ permiso.estado }}">{{ permiso.get_estado_display }}</span></h1><p>{{ permiso.empleado.cargo }} · {{ permiso.empleado.area }}</p></div>
+</div>
+<div class="grid grid-sidebar">
+  <section class="card">
+    <div class="card__header"><h2>Solicitud</h2><small class="muted">Enviada {{ permiso.creado|date:"d/m/Y H:i" }}</small></div>
+    <div class="card__body"><dl class="dl">
+      <dt>Periodo</dt><dd>{{ permiso.fecha_inicio|date:"d/m/Y" }} – {{ permiso.fecha_fin|date:"d/m/Y" }} ({{ permiso.dias }} día{{ permiso.dias|pluralize }})</dd>
+      <dt>Motivo</dt><dd>{{ permiso.motivo|linebreaksbr }}</dd>
+      <dt>Documento</dt><dd>{{ permiso.adjunto_descripcion|default:"—" }}</dd>
+      {% if permiso.tipo == 'vacaciones' %}<dt>Vacaciones disponibles</dt><dd>{{ disponibles }} días</dd>{% endif %}
+      {% if permiso.revisado_por %}<dt>Revisado por</dt><dd>{{ permiso.revisado_por }} · {{ permiso.fecha_revision|date:"d/m/Y H:i" }}</dd>{% endif %}
+      {% if permiso.comentario_revision %}<dt>Comentario</dt><dd>{{ permiso.comentario_revision }}</dd>{% endif %}
+    </dl></div>
+  </section>
+  {% if puede_revisar %}
+  <aside class="card">
+    <div class="card__header"><h2>Resolver</h2></div>
+    <form method="post" class="card__body stack">{% csrf_token %}
+      {% include '_errores_form.html' %}
+      {% include '_campo.html' with campo=form.comentario %}
+      <div class="row"><button class="btn btn--success" name="decision" value="aprobar" type="submit">Aprobar</button><button class="btn btn--danger" name="decision" value="rechazar" type="submit">Rechazar</button></div>
+      <small class="muted">El empleado recibirá una notificación con la decisión.</small>
+    </form>
+  </aside>
+  {% endif %}
+</div>
+{% endblock %}

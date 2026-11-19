@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Hola, {{ user.first_name|default:user.username }}</h1>
+    <p>{{ hoy|date:"l j \d\e F \d\e Y"|capfirst }} · {{ user.get_rol_display }}</p>
+  </div>
+  <div class="row">
+    {% if perms.clinica.agendar_cita %}<a class="btn" href="{% url 'clinica:cita_nueva' %}">Agendar cita</a>{% endif %}
+    {% if perms.clinica.add_paciente %}<a class="btn btn--secondary" href="{% url 'clinica:paciente_nuevo' %}">Registrar paciente</a>{% endif %}
+  </div>
+</div>
+
+{% if indicadores %}
+<div class="grid grid-4" style="margin-bottom:16px">
+  <div class="card stat"><div class="stat__label">Citas hoy</div><div class="stat__value">{{ indicadores.hoy }}</div></div>
+  <div class="card stat"><div class="stat__label">Programadas (próximas)</div><div class="stat__value">{{ indicadores.programadas }}</div></div>
+  <div class="card stat stat--success"><div class="stat__label">Completadas este mes</div><div class="stat__value">{{ indicadores.completadas_mes }}</div></div>
+  <div class="card stat {% if indicadores.inasistencias %}stat--warning{% endif %}"><div class="stat__label">Inasistencias</div><div class="stat__value">{{ indicadores.inasistencias }}</div><div class="stat__hint">{{ total_pacientes }} pacientes registrados</div></div>
+</div>
+{% endif %}
+
+{% if paciente %}
+<div class="grid grid-3" style="margin-bottom:16px">
+  <div class="card stat"><div class="stat__label">Paciente</div><div style="font-weight:700;margin-top:6px">{{ paciente.nombre_completo }}</div><div class="stat__hint">DNI {{ paciente.dni }} · {{ paciente.edad }} años · {{ paciente.get_tipo_display }}</div></div>
+  <div class="card stat"><div class="stat__label">Alergias registradas</div><div style="margin-top:6px">{{ paciente.alergias|default:"Ninguna" }}</div></div>
+  <div class="card stat"><div class="stat__label">Última consulta</div><div style="margin-top:6px">{% if ultima_consulta %}{{ ultima_consulta.cita.fecha|date:"d/m/Y" }} · {{ ultima_consulta.medico }}{% else %}Sin consultas{% endif %}</div><div class="stat__hint"><a href="{% url 'clinica:mi_historial' %}">Ver mi historial →</a></div></div>
+</div>
+{% endif %}
+
+<div class="grid grid-sidebar">
+  <section class="card">
+    <div class="card__header"><h2>{% if user.es_paciente %}Próximas citas{% else %}Citas de hoy{% endif %}</h2><a href="{% url 'clinica:cita_lista' %}">Ver agenda →</a></div>
+    {% if user.es_paciente %}{% with citas=proximas %}
+      {% if citas %}{% include 'clinica/_tabla_citas.html' %}{% else %}<div class="empty"><strong>No tiene citas programadas</strong><a href="{% url 'clinica:cita_nueva' %}">Agende una cita</a></div>{% endif %}
+    {% endwith %}{% else %}{% with citas=citas_hoy %}
+      {% if citas %}{% include 'clinica/_tabla_citas.html' %}{% else %}<div class="empty"><strong>Sin citas para hoy</strong></div>{% endif %}
+    {% endwith %}{% endif %}
+  </section>
+  <aside class="card">
+    <div class="card__header"><h2>Horario de atención</h2></div>
+    <ul class="list">{% for fila in horario_centro %}<li>{{ fila }}</li>{% endfor %}<li class="muted">Domingo: cerrado</li></ul>
+  </aside>
+</div>
+{% endblock %}

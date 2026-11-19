@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Notificaciones{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Notificaciones</h1><p>Avisos sobre el estado de sus solicitudes.</p></div>
+  <form method="post">{% csrf_token %}<button class="btn btn--secondary" type="submit">Marcar todas como leídas</button></form>
+</div>
+<div class="card">
+  {% if pagina.object_list %}
+  <ul class="list">{% for n in pagina %}<li><span>{% if not n.leida %}<span class="badge badge--info">Nueva</span> {% endif %}{{ n.mensaje }}<br><small class="muted">{{ n.fecha|date:"d/m/Y H:i" }}</small></span>{% if n.permiso %}<a class="btn btn--sm btn--ghost" href="{% url 'asistencia:permiso_detalle' n.permiso.pk %}">Ver</a>{% endif %}</li>{% endfor %}</ul>
+  {% include '_paginacion.html' %}
+  {% else %}<div class="empty">No tiene notificaciones.</div>{% endif %}
+</div>
+{% endblock %}

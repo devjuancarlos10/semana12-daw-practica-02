@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Consulta{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><p><a href="{% url 'clinica:historial_paciente' consulta.paciente.pk %}">← Historial de {{ consulta.paciente.nombre_completo }}</a></p><h1>Consulta del {{ consulta.cita.fecha|date:"d/m/Y" }}</h1><p>{{ consulta.medico }} · {{ consulta.medico.especialidad }}</p></div>
+  <span class="badge badge--info">Registro inmutable · acceso auditado</span>
+</div>
+<div class="grid grid-sidebar">
+  <section class="card">
+    <div class="card__header"><h2>Registro clínico</h2><small class="muted">Registrado {{ consulta.fecha_registro|date:"d/m/Y H:i" }}</small></div>
+    <div class="card__body"><dl class="dl">
+      <dt>Motivo</dt><dd>{{ consulta.cita.motivo|linebreaksbr }}</dd>
+      <dt>Diagnóstico</dt><dd>{{ consulta.diagnostico|linebreaksbr }}</dd>
+      <dt>Tratamiento</dt><dd>{{ consulta.tratamiento|linebreaksbr }}</dd>
+      <dt>Medicamentos</dt><dd>{{ consulta.medicamentos|default:"—"|linebreaksbr }}</dd>
+      <dt>Próximo control</dt><dd>{{ consulta.proxima_cita_control|date:"d/m/Y"|default:"No programado" }}</dd>
+      <dt>Adjuntos</dt><dd>{% for a in consulta.lista_adjuntos %}<span class="badge">📄 {{ a }}</span> {% empty %}—{% endfor %}</dd>
+    </dl></div>
+  </section>
+  <aside class="card">
+    <div class="card__header"><h2>Notas</h2></div>
+    {% if notas %}<ul class="list">{% for n in notas %}<li style="display:block"><small class="muted">{{ n.autor }} · {{ n.fecha|date:"d/m/Y H:i" }}</small><div>{{ n.texto|linebreaksbr }}</div></li>{% endfor %}</ul>
+    {% else %}<div class="empty">Sin notas.</div>{% endif %}
+    {% if form_nota %}
+    <form method="post" class="card__body stack" style="border-top:1px solid var(--border)">{% csrf_token %}
+      {% include '_campo.html' with campo=form_nota.texto %}
+      <button class="btn btn--block" type="submit">Agregar nota</button>
+    </form>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

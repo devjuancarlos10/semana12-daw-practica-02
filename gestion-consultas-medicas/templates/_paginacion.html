@@ -1,0 +1,10 @@
+{% load ui %}
+{% if pagina.paginator.num_pages > 1 %}
+<div class="pagination">
+  <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }} · {{ pagina.paginator.count }} registros</span>
+  <span class="row">
+    {% if pagina.has_previous %}<a class="btn btn--secondary btn--sm" href="{% url_con_parametros pagina=pagina.previous_page_number %}">← Anterior</a>{% endif %}
+    {% if pagina.has_next %}<a class="btn btn--secondary btn--sm" href="{% url_con_parametros pagina=pagina.next_page_number %}">Siguiente →</a>{% endif %}
+  </span>
+</div>
+{% endif %}

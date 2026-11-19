@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Préstamo #{{ prestamo.pk }}{% endblock %}
+{% block content %}
+{% with p=prestamo %}
+<div class="page-header">
+  <div><p><a href="{% url 'prestamos:prestamo_lista' %}">← Préstamos</a></p><h1>Préstamo #{{ p.pk }} {% include 'prestamos/_badge_prestamo.html' %}</h1></div>
+  <div class="row">
+    {% if perms.prestamos.registrar_devolucion and p.estado == 'activo' %}<a class="btn" href="{% url 'prestamos:prestamo_devolver' p.pk %}">Registrar devolución</a>{% endif %}
+    {% if perms.prestamos.gestionar_prestamos and p.estado == 'pendiente' %}
+      <form method="post" action="{% url 'prestamos:prestamo_aprobar' p.pk %}">{% csrf_token %}<button class="btn btn--success" type="submit">Aprobar y entregar</button></form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid grid-sidebar">
+  <section class="card">
+    <div class="card__header"><h2>Detalle</h2></div>
+    <div class="card__body"><dl class="dl">
+      <dt>Docente</dt><dd>{{ p.docente }}{% if p.docente.email %} · <small>{{ p.docente.email }}</small>{% endif %}</dd>
+      <dt>Equipo</dt><dd><a href="{% url 'prestamos:equipo_detalle' p.equipo.pk %}">{{ p.equipo }}</a><br><small>{{ p.equipo.laboratorio }}</small></dd>
+      <dt>Cantidad</dt><dd>{{ p.cantidad }}</dd>
+      <dt>Fecha de préstamo</dt><dd>{{ p.fecha_prestamo|date:"d/m/Y" }}</dd>
+      <dt>Devolución prevista</dt><dd>{{ p.fecha_devolucion_prevista|date:"d/m/Y" }}{% if p.dias_retraso %} · <span class="text-danger">{{ p.dias_retraso }} día(s) de retraso</span>{% endif %}</dd>
+      {% if p.observaciones %}<dt>Observaciones</dt><dd>{{ p.observaciones|linebreaksbr }}</dd>{% endif %}
+      {% if p.registrado_por %}<dt>{% if p.estado == 'rechazado' %}Rechazado por{% else %}Entregado por{% endif %}</dt><dd>{{ p.registrado_por }}</dd>{% endif %}
+      {% if p.motivo_rechazo %}<dt>Motivo de rechazo</dt><dd>{{ p.motivo_rechazo }}</dd>{% endif %}
+    </dl></div>
+  </section>
+
+  <aside class="stack">
+    {% if p.estado == 'devuelto' %}
+    <section class="card">
+      <div class="card__header"><h2>Devolución</h2></div>
+      <div class="card__body"><dl class="dl" style="grid-template-columns:1fr">
+        <dt>Fecha</dt><dd>{{ p.fecha_devolucion_real|date:"d/m/Y" }}</dd>
+        <dt>Estado del equipo</dt><dd><span class="badge badge--{{ p.estado_equipo_devolucion }}">{{ p.get_estado_equipo_devolucion_display }}</span></dd>
+        {% if p.observaciones_devolucion %}<dt>Observaciones</dt><dd>{{ p.observaciones_devolucion|linebreaksbr }}</dd>{% endif %}
+        <dt>Recibido por</dt><dd>{{ p.recibido_por|default:"—" }}</dd>
+      </dl></div>
+    </section>
+    {% endif %}
+    {% if perms.prestamos.gestionar_prestamos and p.estado == 'pendiente' %}
+    <section class="card">
+      <div class="card__header"><h2>Rechazar solicitud</h2></div>
+      <form method="post" action="{% url 'prestamos:prestamo_rechazar' p.pk %}" class="card__body stack">{% csrf_token %}
+        {% include '_campo.html' with campo=form_rechazo.motivo %}
+        <button class="btn btn--danger btn--block" type="submit">Rechazar</button>
+      </form>
+    </section>
+    {% endif %}
+  </aside>
+</div>
+{% endwith %}
+{% endblock %}

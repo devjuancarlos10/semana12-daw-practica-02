@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Auditoría{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Registro de auditoría</h1><p>Acciones críticas e intentos de acceso no autorizado. Solo visible para administradores.</p></div></div>
+<form method="get" class="filters" style="margin-bottom:16px">
+  <div class="field"><label for="accion">Acción</label>
+    <select class="select" id="accion" name="accion"><option value="">Todas</option>{% for v, e in acciones %}<option value="{{ v }}"{% if accion_actual == v %} selected{% endif %}>{{ e }}</option>{% endfor %}</select>
+  </div>
+  <label class="row" style="padding-bottom:10px"><input type="checkbox" name="seguridad" value="1"{% if solo_seguridad %} checked{% endif %}> Solo eventos de seguridad</label>
+  <button class="btn btn--secondary" type="submit">Filtrar</button>
+</form>
+<div class="card">
+  {% if pagina.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Detalle</th><th>IP</th><th>Ruta</th></tr></thead>
+    <tbody>
+    {% for r in pagina %}
+      <tr>
+        <td class="mono">{{ r.fecha|date:"d/m/Y H:i:s" }}</td>
+        <td>{{ r.username|default:"anónimo" }}</td>
+        <td><span class="badge {% if r.es_evento_seguridad %}badge--danger{% else %}badge--info{% endif %}">{{ r.get_accion_display }}</span></td>
+        <td>{{ r.descripcion }}</td>
+        <td class="mono">{{ r.ip|default:"—" }}</td>
+        <td class="mono"><small>{{ r.metodo }} {{ r.ruta }}</small></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% include '_paginacion.html' %}
+  {% else %}<div class="empty">No hay registros.</div>{% endif %}
+</div>
+{% endblock %}

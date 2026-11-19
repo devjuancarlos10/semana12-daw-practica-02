@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}{{ equipo.codigo_patrimonial }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><p><a href="{% url 'prestamos:catalogo' %}">← Catálogo</a></p><h1>{{ equipo.nombre }}</h1><p class="mono">{{ equipo.codigo_patrimonial }}</p></div>
+  <div class="row">
+    {% if perms.prestamos.add_prestamo and equipo.es_operativo and equipo.disponibles %}<a class="btn" href="{% url 'prestamos:prestamo_nuevo' %}?equipo={{ equipo.pk }}">Solicitar préstamo</a>{% endif %}
+    {% if perms.prestamos.change_equipo %}<a class="btn btn--secondary" href="{% url 'prestamos:equipo_editar' equipo.pk %}">Editar</a>{% endif %}
+    {% if perms.prestamos.delete_equipo %}<a class="btn btn--danger" href="{% url 'prestamos:equipo_eliminar' equipo.pk %}">Eliminar</a>{% endif %}
+  </div>
+</div>
+<div class="grid grid-sidebar">
+  <section class="card"><div class="card__header"><h2>Ficha técnica</h2><span class="badge badge--{{ equipo.estado }}">{{ equipo.get_estado_display }}</span></div>
+    <div class="card__body"><dl class="dl">
+      <dt>Categoría</dt><dd>{{ equipo.get_categoria_display }}</dd>
+      <dt>Marca / modelo</dt><dd>{{ equipo.marca }} · {{ equipo.modelo }}</dd>
+      <dt>Laboratorio</dt><dd>{{ equipo.laboratorio }}<br><small>{{ equipo.laboratorio.ubicacion }}</small></dd>
+      <dt>Unidades</dt><dd>{{ equipo.disponibles }} disponible{{ equipo.disponibles|pluralize }} de {{ equipo.cantidad_total }}</dd>
+      <dt>Último mantenimiento</dt><dd>{% if equipo.fecha_ultimo_mantenimiento %}{{ equipo.fecha_ultimo_mantenimiento|date:"d/m/Y" }} <small>(hace {{ equipo.dias_desde_mantenimiento }} días)</small>{% else %}Sin registro{% endif %}</dd>
+      {% if equipo.descripcion %}<dt>Descripción</dt><dd>{{ equipo.descripcion|linebreaksbr }}</dd>{% endif %}
+    </dl></div>
+  </section>
+  {% if perms.prestamos.ver_todos_prestamos %}
+  <section class="card"><div class="card__header"><h2>Últimos préstamos</h2></div>
+    {% if historial %}<ul class="list">{% for p in historial %}<li><span><a href="{% url 'prestamos:prestamo_detalle' p.pk %}">#{{ p.pk }}</a> · {{ p.docente }}<br><small>{{ p.fecha_prestamo|date:"d/m/Y" }}</small></span>{% include 'prestamos/_badge_prestamo.html' %}</li>{% endfor %}</ul>
+    {% else %}<div class="empty">Sin préstamos registrados.</div>{% endif %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

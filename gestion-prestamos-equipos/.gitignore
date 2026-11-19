@@ -1,0 +1,23 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Base de datos y archivos generados
+db.sqlite3
+db.sqlite3-journal
+logs/
+staticfiles/
+
+# Secretos
+.env
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

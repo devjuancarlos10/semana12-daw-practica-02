@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load ui %}
+{% block title %}Iniciar sesión{% endblock %}
+{% block layout %}
+<main class="auth">
+  <div class="auth__card">
+    <div class="auth__brand">
+      <div class="brand__logo">+</div>
+      <h1>{{ NOMBRE_SISTEMA }}</h1>
+      <p class="muted">Seleccione su tipo de usuario e ingrese sus credenciales</p>
+    </div>
+    {% for message in messages %}
+      <div class="alert alert--{{ message.tags|clase_mensaje }}">{{ message }}</div>
+    {% endfor %}
+    <div class="card"><div class="card__body">
+      {% include '_errores_form.html' %}
+      <form method="post" novalidate class="stack">
+        {% csrf_token %}
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend class="field" style="font-weight:600;font-size:14px;margin-bottom:6px">{{ form.tipo_usuario.label }}</legend>
+          <div class="segmented">
+            {% for opcion in form.tipo_usuario %}
+              {{ opcion.tag }}<label for="{{ opcion.id_for_label }}">{{ opcion.choice_label }}</label>
+            {% endfor %}
+          </div>
+        </fieldset>
+        {% include '_campo.html' with campo=form.username %}
+        {% include '_campo.html' with campo=form.password %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="btn btn--block btn--lg">Ingresar</button>
+      </form>
+    </div>
+    <div class="card__footer"><small>Acceso restringido a personal autorizado y pacientes registrados. Todos los accesos a historiales clínicos quedan auditados.</small></div>
+    </div>
+  </div>
+</main>
+{% endblock %}

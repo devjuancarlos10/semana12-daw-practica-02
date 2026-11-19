@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ titulo }}</h1><p>Se crea automáticamente el usuario de acceso a partir del correo corporativo.</p></div></div>
+<form method="post" novalidate class="card" style="max-width:900px">{% csrf_token %}
+  <div class="card__body">
+    {% include '_errores_form.html' %}
+    <div class="form-grid">
+      {% include '_campo.html' with campo=form.dni %}
+      {% include '_campo.html' with campo=form.email_corporativo %}
+      {% include '_campo.html' with campo=form.nombres %}
+      {% include '_campo.html' with campo=form.apellidos %}
+      {% include '_campo.html' with campo=form.cargo %}
+      {% include '_campo.html' with campo=form.area %}
+      {% include '_campo.html' with campo=form.fecha_ingreso %}
+      {% include '_campo.html' with campo=form.tipo_contrato %}
+      {% include '_campo.html' with campo=form.salario %}
+      {% include '_campo.html' with campo=form.rol %}
+      {% include '_campo.html' with campo=form.hora_entrada %}
+      {% include '_campo.html' with campo=form.hora_salida %}
+    </div>
+  </div>
+  <div class="card__footer form-actions" style="margin:0"><a class="btn btn--secondary" href="{% url 'asistencia:empleado_lista' %}">Cancelar</a><button class="btn" type="submit">Guardar</button></div>
+</form>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Aprobaciones{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Bandeja de aprobaciones</h1><p>{% if user.es_rrhh %}Todas las áreas (RRHH).{% elif area %}Equipo del área {{ area }}.{% else %}No tiene un área a cargo.{% endif %}</p></div></div>
+<nav class="tabs">{% for v, e in estados %}<a href="?estado={{ v }}" class="{% if estado_actual == v %}active{% endif %}">{{ e }}</a>{% endfor %}<a href="?estado=todos" class="{% if estado_actual == 'todos' %}active{% endif %}">Todos</a></nav>
+<div class="card">
+  {% if pagina.object_list %}
+    {% with permisos=pagina.object_list mostrar_empleado=True %}{% include 'asistencia/_tabla_permisos.html' %}{% endwith %}
+    {% include '_paginacion.html' %}
+  {% else %}<div class="empty"><strong>No hay solicitudes en este estado</strong></div>{% endif %}
+</div>
+{% endblock %}

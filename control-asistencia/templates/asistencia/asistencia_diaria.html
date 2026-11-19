@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Asistencia diaria{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Asistencia diaria</h1><p>{{ fecha|date:"l d/m/Y"|capfirst }}</p></div></div>
+<form method="get" class="filters" style="margin-bottom:16px">
+  <div class="field"><label for="fecha">Fecha</label><input class="input" type="date" id="fecha" name="fecha" value="{{ fecha|date:'Y-m-d' }}"></div>
+  <div class="field"><label for="area">Área</label><select class="select" id="area" name="area"><option value="">Todas</option>{% for a in areas %}<option value="{{ a.pk }}"{% if area_actual == a.pk|stringformat:"s" %} selected{% endif %}>{{ a }}</option>{% endfor %}</select></div>
+  <button class="btn btn--secondary" type="submit">Ver</button>
+</form>
+<div class="card">
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Empleado</th><th>Área</th><th>Horario</th><th>Entrada</th><th>Salida</th><th class="num">Horas</th><th>Estado</th>{% if perms.asistencia.corregir_asistencia %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+    {% for f in filas %}
+      {% with r=f.registros.0 %}
+      <tr>
+        <td><strong>{{ f.empleado.apellidos }}</strong>, {{ f.empleado.nombres }}<br><small>{{ f.empleado.cargo }}</small></td>
+        <td>{{ f.empleado.area }}</td>
+        <td class="mono"><small>{{ f.empleado.hora_entrada|time:"H:i" }}–{{ f.empleado.hora_salida|time:"H:i" }}</small></td>
+        <td class="mono">{% if r %}{{ r.hora_entrada|time:"H:i" }}{% else %}—{% endif %}</td>
+        <td class="mono">{% if r.hora_salida %}{{ r.hora_salida|time:"H:i" }}{% elif r %}<span class="badge badge--warning">En curso</span>{% else %}—{% endif %}</td>
+        <td class="num">{% if r.horas_trabajadas %}{{ r.horas_trabajadas }}{% if r.horas_extra %} <span class="badge badge--info">+{{ r.horas_extra }}</span>{% endif %}{% else %}—{% endif %}</td>
+        <td>{% if f.permiso %}<span class="badge badge--info">{{ f.permiso.get_tipo_display }}</span>{% elif r %}{% if r.tardanza_minutos > 10 %}<span class="badge badge--danger">Tardanza {{ r.tardanza_minutos }} min</span>{% else %}<span class="badge badge--success">Puntual</span>{% endif %}{% else %}<span class="badge badge--warning">Sin marcación</span>{% endif %}</td>
+        {% if perms.asistencia.corregir_asistencia %}<td class="text-right">{% if r %}<a class="btn btn--sm btn--ghost" href="{% url 'asistencia:asistencia_corregir' r.pk %}">Corregir</a>{% endif %}</td>{% endif %}
+      </tr>
+      {% endwith %}
+    {% empty %}<tr><td colspan="8" class="empty">Sin empleados.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

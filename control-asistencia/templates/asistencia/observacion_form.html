@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Editar observación{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Editar observación</h1><p>Registro del {{ registro.fecha|date:"d/m/Y" }} · entrada {{ registro.hora_entrada|time:"H:i" }}</p></div></div>
+<form method="post" novalidate class="card" style="max-width:640px">{% csrf_token %}
+  <div class="card__body">{% include '_errores_form.html' %}{% include '_campo.html' with campo=form.observacion %}</div>
+  <div class="card__footer form-actions" style="margin:0"><a class="btn btn--secondary" href="{% url 'asistencia:mi_asistencia' %}">Cancelar</a><button class="btn" type="submit">Guardar</button></div>
+</form>
+{% endblock %}

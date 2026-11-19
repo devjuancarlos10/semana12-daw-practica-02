@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>{{ titulo }}</h1><p>Los campos marcados con * son obligatorios.</p></div></div>
+<form method="post" novalidate class="card" style="max-width:860px">
+  {% csrf_token %}
+  <div class="card__body">
+    {% include '_errores_form.html' %}
+    <div class="form-grid">
+      {% include '_campo.html' with campo=form.codigo_patrimonial %}
+      {% include '_campo.html' with campo=form.nombre %}
+      {% include '_campo.html' with campo=form.marca %}
+      {% include '_campo.html' with campo=form.modelo %}
+      {% include '_campo.html' with campo=form.categoria %}
+      {% include '_campo.html' with campo=form.estado %}
+      {% include '_campo.html' with campo=form.laboratorio %}
+      {% include '_campo.html' with campo=form.cantidad_total %}
+      {% include '_campo.html' with campo=form.fecha_ultimo_mantenimiento %}
+      {% include '_campo.html' with campo=form.descripcion full=True %}
+    </div>
+  </div>
+  <div class="card__footer form-actions" style="margin:0">
+    <a class="btn btn--secondary" href="{% if equipo %}{% url 'prestamos:equipo_detalle' equipo.pk %}{% else %}{% url 'prestamos:catalogo' %}{% endif %}">Cancelar</a>
+    <button class="btn" type="submit">Guardar</button>
+  </div>
+</form>
+{% endblock %}

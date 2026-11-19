@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Mis permisos{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>Mis permisos</h1><p>Vacaciones disponibles: <strong>{{ empleado.dias_vacaciones_disponibles }}</strong> de 30 días.</p></div>
+  <a class="btn" href="{% url 'asistencia:permiso_nuevo' %}">Nueva solicitud</a>
+</div>
+<div class="card">
+  {% if pagina.object_list %}
+    {% with permisos=pagina.object_list %}{% include 'asistencia/_tabla_permisos.html' %}{% endwith %}
+    {% include '_paginacion.html' %}
+  {% else %}<div class="empty"><strong>Sin solicitudes</strong>Registre su primera solicitud de permiso o vacaciones.</div>{% endif %}
+</div>
+{% endblock %}

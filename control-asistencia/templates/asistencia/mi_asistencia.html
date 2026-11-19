@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Mi asistencia{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Mi asistencia</h1><p>Puede editar la observación de un registro durante las primeras {{ horas_edicion }} horas.</p></div></div>
+<div class="card">
+  {% if pagina.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th class="num">Horas</th><th class="num">Extra</th><th>Observación</th><th></th></tr></thead>
+    <tbody>
+    {% for r in pagina %}
+      <tr>
+        <td>{{ r.fecha|date:"D d/m/Y" }}{% if r.corregida %} <span class="badge badge--info">Corregido</span>{% endif %}</td>
+        <td class="mono">{{ r.hora_entrada|time:"H:i" }}{% if r.tardanza_minutos > 10 %} <span class="badge badge--danger">+{{ r.tardanza_minutos }} min</span>{% endif %}</td>
+        <td class="mono">{% if r.hora_salida %}{{ r.hora_salida|time:"H:i" }}{% else %}<span class="badge badge--warning">En curso</span>{% endif %}</td>
+        <td class="num">{{ r.horas_trabajadas|default:"—" }}</td>
+        <td class="num">{% if r.horas_extra %}<strong>{{ r.horas_extra }}</strong>{% else %}—{% endif %}</td>
+        <td><small>{{ r.observacion|default:"—" }}</small></td>
+        <td class="text-right">{% if r.editable_por_empleado %}<a class="btn btn--sm btn--ghost" href="{% url 'asistencia:asistencia_observacion' r.pk %}">Editar</a>{% else %}<small class="muted">Cerrado</small>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% include '_paginacion.html' %}
+  {% else %}<div class="empty"><strong>Sin registros</strong>Marque su entrada desde el panel.</div>{% endif %}
+</div>
+{% endblock %}

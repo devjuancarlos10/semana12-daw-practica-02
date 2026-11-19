@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Agendar cita{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Agendar cita médica</h1><p>Elija la especialidad, el médico y un turno disponible.</p></div></div>
+<div class="grid grid-sidebar">
+  <form method="post" novalidate class="card">
+    {% csrf_token %}
+    <div class="card__body">
+      {% include '_errores_form.html' %}
+      <div class="form-grid">
+        {% if form.paciente %}{% include '_campo.html' with campo=form.paciente full=True %}{% endif %}
+        {% include '_campo.html' with campo=form.especialidad %}
+        {% include '_campo.html' with campo=form.medico %}
+        {% include '_campo.html' with campo=form.fecha %}
+        {% include '_campo.html' with campo=form.hora %}
+        {% include '_campo.html' with campo=form.motivo full=True %}
+      </div>
+    </div>
+    <div class="card__footer form-actions" style="margin:0">
+      <a class="btn btn--secondary" href="{% url 'clinica:cita_lista' %}">Cancelar</a>
+      <button class="btn" type="submit">Agendar</button>
+    </div>
+  </form>
+  <aside class="stack">
+    <section class="card">
+      <div class="card__header"><h2>Horario de atención</h2></div>
+      <ul class="list">{% for fila in horario_centro %}<li>{{ fila }}</li>{% endfor %}<li class="muted">Domingo: cerrado</li></ul>
+    </section>
+    <section class="card">
+      <div class="card__header"><h2>Reglas</h2></div>
+      <ul class="list">
+        <li>Turnos de 30 minutos dentro del horario del médico.</li>
+        <li>Un paciente solo puede tener una cita por día.</li>
+        <li>El motivo debe tener al menos 20 caracteres.</li>
+      </ul>
+    </section>
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/cita.js' %}"></script>{% endblock %}

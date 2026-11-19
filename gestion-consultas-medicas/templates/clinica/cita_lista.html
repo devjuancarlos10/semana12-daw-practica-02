@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Agenda{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>{% if user.es_medico %}Mi agenda{% elif user.es_paciente %}Mis citas{% else %}Agenda de citas{% endif %}</h1><p>Filtre por fecha y estado.</p></div>
+  {% if perms.clinica.agendar_cita %}<a class="btn" href="{% url 'clinica:cita_nueva' %}">Agendar cita</a>{% endif %}
+</div>
+<form method="get" class="card card__body filters" style="margin-bottom:16px">
+  {% include '_campo.html' with campo=form.fecha %}
+  {% if form.medico %}{% include '_campo.html' with campo=form.medico %}{% endif %}
+  {% include '_campo.html' with campo=form.estado %}
+  <div class="row"><button class="btn" type="submit">Filtrar</button><a class="btn btn--secondary" href="{% url 'clinica:cita_lista' %}">Limpiar</a></div>
+</form>
+<div class="card">
+  {% if pagina.object_list %}
+    {% with citas=pagina.object_list %}{% include 'clinica/_tabla_citas.html' %}{% endwith %}
+    {% include '_paginacion.html' %}
+  {% else %}
+    <div class="empty"><strong>No hay citas para mostrar</strong>Cambie los filtros o agende una nueva cita.</div>
+  {% endif %}
+</div>
+{% endblock %}

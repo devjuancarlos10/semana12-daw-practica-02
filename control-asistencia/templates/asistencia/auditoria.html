@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Auditoría{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Auditoría</h1><p>Todo cambio en asistencia, permisos y empleados con usuario, fecha y hora.</p></div></div>
+<nav class="tabs"><a href="?" class="{% if not accion_actual %}active{% endif %}">Todas</a>{% for v, e in acciones %}<a href="?accion={{ v }}" class="{% if accion_actual == v %}active{% endif %}">{{ e }}</a>{% endfor %}</nav>
+<div class="card">
+  {% if pagina.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Fecha y hora</th><th>Usuario</th><th>Acción</th><th>Registro</th><th>Detalle</th><th>IP</th></tr></thead>
+    <tbody>{% for r in pagina %}
+      <tr>
+        <td class="mono">{{ r.fecha|date:"d/m/Y H:i:s" }}</td>
+        <td>{{ r.username|default:"sistema" }}</td>
+        <td><span class="badge {% if r.accion == 'seguridad' %}badge--danger{% elif r.accion == 'modificacion' %}badge--warning{% else %}badge--info{% endif %}">{{ r.get_accion_display }}</span></td>
+        <td>{{ r.modelo }}<br><small>{{ r.objeto }}</small></td>
+        <td><small class="mono">{% for linea in r.cambios_legibles %}{{ linea }}<br>{% empty %}—{% endfor %}</small></td>
+        <td class="mono">{{ r.ip|default:"—" }}</td>
+      </tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% include '_paginacion.html' %}
+  {% else %}<div class="empty">No hay registros.</div>{% endif %}
+</div>
+{% endblock %}

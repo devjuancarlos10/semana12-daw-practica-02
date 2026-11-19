@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Préstamos{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><h1>{% if ve_todos %}Préstamos{% else %}Mis préstamos{% endif %}</h1><p>{% if ve_todos %}Todos los préstamos registrados en el sistema.{% else %}Historial de sus solicitudes y préstamos.{% endif %}</p></div>
+  {% if perms.prestamos.add_prestamo %}<a class="btn" href="{% url 'prestamos:prestamo_nuevo' %}">{% if perms.prestamos.gestionar_prestamos %}Registrar préstamo{% else %}Solicitar préstamo{% endif %}</a>{% endif %}
+</div>
+
+<nav class="tabs" aria-label="Filtrar por estado">
+  <a href="?" class="{% if not estado_actual %}active{% endif %}">Todos</a>
+  {% for valor, etiqueta in estados %}<a href="?estado={{ valor }}{% if q %}&q={{ q|urlencode }}{% endif %}" class="{% if estado_actual == valor %}active{% endif %}">{{ etiqueta }}</a>{% endfor %}
+  <a href="?estado=vencido" class="{% if estado_actual == 'vencido' %}active{% endif %}">Vencidos</a>
+</nav>
+
+{% if ve_todos %}
+<form method="get" class="filters" style="margin-bottom:16px">
+  <input type="hidden" name="estado" value="{{ estado_actual }}">
+  <div class="field"><label for="q">Buscar</label><input class="input" id="q" name="q" value="{{ q }}" placeholder="Código de equipo o nombre del docente"></div>
+  <button class="btn btn--secondary" type="submit">Buscar</button>
+</form>
+{% endif %}
+
+<div class="card">
+  {% if pagina.object_list %}
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>#</th>{% if ve_todos %}<th>Docente</th>{% endif %}<th>Equipo</th><th class="num">Cant.</th><th>Préstamo</th><th>Devolución prevista</th><th>Estado</th><th></th></tr></thead>
+    <tbody>
+    {% for p in pagina %}
+      <tr>
+        <td><a href="{% url 'prestamos:prestamo_detalle' p.pk %}">#{{ p.pk }}</a></td>
+        {% if ve_todos %}<td>{{ p.docente }}</td>{% endif %}
+        <td><span class="mono">{{ p.equipo.codigo_patrimonial }}</span><br><small>{{ p.equipo.nombre }} · {{ p.equipo.laboratorio.codigo }}</small></td>
+        <td class="num">{{ p.cantidad }}</td>
+        <td>{{ p.fecha_prestamo|date:"d/m/Y" }}</td>
+        <td>{{ p.fecha_devolucion_prevista|date:"d/m/Y" }}</td>
+        <td>{% include 'prestamos/_badge_prestamo.html' %}</td>
+        <td class="text-right">
+          {% if perms.prestamos.registrar_devolucion and p.estado == 'activo' %}<a class="btn btn--sm btn--secondary" href="{% url 'prestamos:prestamo_devolver' p.pk %}">Devolución</a>
+          {% else %}<a class="btn btn--sm btn--ghost" href="{% url 'prestamos:prestamo_detalle' p.pk %}">Ver</a>{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% include '_paginacion.html' %}
+  {% else %}
+    <div class="empty"><strong>No hay préstamos para mostrar</strong>Cambie el filtro o registre un nuevo préstamo.</div>
+  {% endif %}
+</div>
+{% endblock %}

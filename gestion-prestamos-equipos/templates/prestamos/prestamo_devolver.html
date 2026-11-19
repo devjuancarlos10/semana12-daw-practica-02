@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Devolución #{{ prestamo.pk }}{% endblock %}
+{% block content %}
+<div class="page-header"><div><p><a href="{% url 'prestamos:prestamo_detalle' prestamo.pk %}">← Préstamo #{{ prestamo.pk }}</a></p><h1>Registrar devolución</h1><p>{{ prestamo.equipo }} · {{ prestamo.docente }}</p></div></div>
+{% if prestamo.esta_vencido %}<div class="alert alert--warning">Este préstamo tiene <strong>{{ prestamo.dias_retraso }} día(s) de retraso</strong>.</div>{% endif %}
+<form method="post" novalidate class="card" style="max-width:720px">
+  {% csrf_token %}
+  <div class="card__body">
+    {% include '_errores_form.html' %}
+    <div class="form-grid">
+      {% include '_campo.html' with campo=form.fecha_devolucion %}
+      {% include '_campo.html' with campo=form.estado_equipo %}
+      {% include '_campo.html' with campo=form.observaciones full=True %}
+    </div>
+    <p class="help" style="margin-top:12px">Si el equipo retorna en mantenimiento o para baja, su estado en el inventario se actualizará automáticamente.</p>
+  </div>
+  <div class="card__footer form-actions" style="margin:0">
+    <a class="btn btn--secondary" href="{% url 'prestamos:prestamo_detalle' prestamo.pk %}">Cancelar</a>
+    <button class="btn" type="submit">Confirmar devolución</button>
+  </div>
+</form>
+{% endblock %}

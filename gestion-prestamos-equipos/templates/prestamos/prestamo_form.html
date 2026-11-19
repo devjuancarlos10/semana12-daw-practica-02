@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Nuevo préstamo{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{% if form.docente %}Registrar préstamo{% else %}Solicitar préstamo{% endif %}</h1>
+    <p>{% if form.docente %}El préstamo se registra como entregado en el momento.{% else %}Su solicitud será revisada por un asistente de laboratorio.{% endif %}</p>
+  </div>
+</div>
+<div class="grid grid-sidebar">
+  <form method="post" novalidate class="card">
+    {% csrf_token %}
+    <div class="card__body">
+      {% include '_errores_form.html' %}
+      <div class="form-grid">
+        {% if form.docente %}{% include '_campo.html' with campo=form.docente full=True %}{% endif %}
+        {% include '_campo.html' with campo=form.equipo full=True %}
+        {% include '_campo.html' with campo=form.cantidad %}
+        <div></div>
+        {% include '_campo.html' with campo=form.fecha_prestamo %}
+        {% include '_campo.html' with campo=form.fecha_devolucion_prevista %}
+        {% include '_campo.html' with campo=form.observaciones full=True %}
+      </div>
+    </div>
+    <div class="card__footer form-actions" style="margin:0">
+      <a class="btn btn--secondary" href="{% url 'prestamos:prestamo_lista' %}">Cancelar</a>
+      <button class="btn" type="submit">{% if form.docente %}Registrar préstamo{% else %}Enviar solicitud{% endif %}</button>
+    </div>
+  </form>
+  <aside class="card">
+    <div class="card__header"><h2>Reglas de préstamo</h2></div>
+    <ul class="list">
+      <li>Máximo {{ limite }} préstamos vigentes por docente.</li>
+      <li>Solo se prestan equipos en estado operativo.</li>
+      <li>La devolución debe ser posterior al préstamo (plazo máximo {{ plazo }} días).</li>
+      <li>La cantidad no puede superar las unidades disponibles.</li>
+    </ul>
+  </aside>
+</div>
+{% endblock %}

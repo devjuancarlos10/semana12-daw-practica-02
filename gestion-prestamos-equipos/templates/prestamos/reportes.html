@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Reportes{% endblock %}
+{% block content %}
+<div class="page-header"><div><h1>Reportes de uso</h1><p>Préstamos por docente, laboratorio y categoría de equipo.</p></div></div>
+<div class="grid grid-sidebar">
+  <section class="card">
+    <div class="card__header"><h2>Uso por docente</h2></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Docente</th><th class="num">Préstamos</th><th class="num">Unidades</th><th class="num">En curso</th><th class="num">Vencidos</th></tr></thead>
+      <tbody>
+      {% for d in por_docente %}
+        <tr><td>{{ d }}</td><td class="num">{{ d.total }}</td><td class="num">{{ d.unidades|default:0 }}</td><td class="num">{{ d.activos }}</td><td class="num">{% if d.vencidos %}<span class="text-danger">{{ d.vencidos }}</span>{% else %}0{% endif %}</td></tr>
+      {% empty %}<tr><td colspan="5" class="empty">Sin datos.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+  <section class="card">
+    <div class="card__header"><h2>Préstamos por categoría</h2></div>
+    <div class="card__body stack">
+      {% for c in categorias %}
+        <div><div class="row"><span>{{ c.nombre }}</span><span class="spacer"></span><strong>{{ c.total }}</strong></div><div class="progress"><span style="width:{{ c.porcentaje }}%"></span></div></div>
+      {% empty %}<div class="empty">Sin datos.</div>{% endfor %}
+    </div>
+  </section>
+</div>
+<section class="card" style="margin-top:16px">
+  <div class="card__header"><h2>Uso por laboratorio</h2></div>
+  <div class="table-wrap"><table class="table">
+    <thead><tr><th>Laboratorio</th><th>Ubicación</th><th class="num">Equipos</th><th class="num">En mantenimiento</th><th class="num">Préstamos</th></tr></thead>
+    <tbody>
+    {% for l in por_laboratorio %}
+      <tr><td><strong>{{ l.codigo }}</strong> · {{ l.nombre }}</td><td>{{ l.ubicacion }}</td><td class="num">{{ l.equipos_total }}</td><td class="num">{{ l.en_mantenimiento }}</td><td class="num">{{ l.prestamos_total }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+</section>
+{% endblock %}

@@ -1,0 +1,1 @@
+<span class="badge badge--{{ p.estado_visual }}">{% if p.esta_vencido %}Vencido · {{ p.dias_retraso }} d{% else %}{{ p.get_estado_display }}{% endif %}</span>

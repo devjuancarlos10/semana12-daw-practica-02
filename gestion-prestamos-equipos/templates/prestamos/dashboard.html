@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Panel{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Hola, {{ user.first_name|default:user.username }}</h1>
+    <p>{% if user.es_docente %}Resumen de sus préstamos (máximo {{ limite_prestamos }} vigentes a la vez).{% else %}Resumen general del sistema de préstamos.{% endif %}</p>
+  </div>
+  <div class="row">
+    {% if perms.prestamos.add_prestamo %}<a class="btn" href="{% url 'prestamos:prestamo_nuevo' %}">{% if perms.prestamos.gestionar_prestamos %}Registrar préstamo{% else %}Solicitar préstamo{% endif %}</a>{% endif %}
+    {% if perms.prestamos.add_equipo %}<a class="btn btn--secondary" href="{% url 'prestamos:equipo_crear' %}">Registrar equipo</a>{% endif %}
+  </div>
+</div>
+
+<div class="grid grid-4">
+  <div class="card stat"><div class="stat__label">Solicitudes pendientes</div><div class="stat__value">{{ resumen.pendientes }}</div><div class="stat__hint">Esperando atención</div></div>
+  <div class="card stat"><div class="stat__label">Préstamos en curso</div><div class="stat__value">{{ resumen.activos }}</div><div class="stat__hint">Equipos fuera del laboratorio</div></div>
+  <div class="card stat {% if resumen.vencidos %}stat--danger{% endif %}"><div class="stat__label">Vencidos</div><div class="stat__value">{{ resumen.vencidos }}</div><div class="stat__hint">Requieren devolución inmediata</div></div>
+  <div class="card stat stat--success"><div class="stat__label">Devueltos</div><div class="stat__value">{{ resumen.devueltos }}</div><div class="stat__hint">Histórico</div></div>
+</div>
+
+<div class="grid grid-sidebar" style="margin-top:16px">
+  <section class="card">
+    <div class="card__header"><h2>Préstamos vigentes</h2><a href="{% url 'prestamos:prestamo_lista' %}">Ver todos →</a></div>
+    {% if recientes %}
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>#</th>{% if not user.es_docente %}<th>Docente</th>{% endif %}<th>Equipo</th><th>Devolución</th><th>Estado</th></tr></thead>
+      <tbody>
+      {% for p in recientes %}
+        <tr>
+          <td><a href="{% url 'prestamos:prestamo_detalle' p.pk %}">#{{ p.pk }}</a></td>
+          {% if not user.es_docente %}<td>{{ p.docente }}</td>{% endif %}
+          <td><span class="mono">{{ p.equipo.codigo_patrimonial }}</span><br><small>{{ p.equipo.nombre }}</small></td>
+          <td>{{ p.fecha_devolucion_prevista|date:"d/m/Y" }}</td>
+          <td>{% include 'prestamos/_badge_prestamo.html' %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+      <div class="empty"><strong>Sin préstamos vigentes</strong>Cuando se registre un préstamo aparecerá aquí.</div>
+    {% endif %}
+  </section>
+
+  <aside class="stack">
+    <section class="card">
+      <div class="card__header"><h2>Inventario</h2><a href="{% url 'prestamos:catalogo' %}">Catálogo →</a></div>
+      <ul class="list">
+        <li><span>Equipos registrados</span><strong>{{ equipos.total }}</strong></li>
+        <li><span>Operativos</span><span class="badge badge--operativo">{{ equipos.operativos }}</span></li>
+        <li><span>En mantenimiento</span><span class="badge badge--mantenimiento">{{ equipos.mantenimiento }}</span></li>
+      </ul>
+    </section>
+    {% if perms.prestamos.gestionar_prestamos %}
+    <section class="card">
+      <div class="card__header"><h2>Solicitudes por atender</h2></div>
+      {% if por_aprobar %}
+      <ul class="list">
+        {% for p in por_aprobar %}
+        <li><span><a href="{% url 'prestamos:prestamo_detalle' p.pk %}">#{{ p.pk }} · {{ p.equipo.codigo_patrimonial }}</a><br><small>{{ p.docente }}</small></span><span class="badge badge--pendiente">Solicitado</span></li>
+        {% endfor %}
+      </ul>
+      {% else %}<div class="empty">No hay solicitudes pendientes.</div>{% endif %}
+    </section>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}
